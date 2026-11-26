@@ -1,4 +1,3 @@
-
 const express = require("express");
 const supabase = require("../config/supabase");
 const requireAdmin = require("../middleware/requireAdmin");
@@ -9,14 +8,10 @@ const router = express.Router();
 router.use(requireAdmin);
 
 function validProduct(body) {
-  const name = typeof body.name === "string"
-    ? body.name.trim()
-    : "";
+  const name = typeof body.name === "string" ? body.name.trim() : "";
 
   const description =
-    typeof body.description === "string"
-      ? body.description.trim()
-      : "";
+    typeof body.description === "string" ? body.description.trim() : "";
 
   const price = body.price;
   const stock = body.stock;
@@ -24,32 +19,22 @@ function validProduct(body) {
 
   if (!name || name.length > 150) return null;
 
-  if (
-    typeof price !== "number" ||
-    !Number.isFinite(price) ||
-    price < 0
-  ) return null;
+  if (typeof price !== "number" || !Number.isFinite(price) || price < 0)
+    return null;
 
-  if (
-    !Number.isSafeInteger(stock) ||
-    stock < 0
-  ) return null;
+  if (!Number.isSafeInteger(stock) || stock < 0) return null;
 
-  if (
-    !Number.isSafeInteger(categoryId) ||
-    categoryId < 1
-  ) return null;
+  if (!Number.isSafeInteger(categoryId) || categoryId < 1) return null;
 
   const imageUrl = body.image_url ?? null;
 
   if (
     imageUrl !== null &&
-    (
-      typeof imageUrl !== "string" ||
+    (typeof imageUrl !== "string" ||
       !imageUrl.startsWith("https://") ||
-      imageUrl.length > 2048
-    )
-  ) return null;
+      imageUrl.length > 2048)
+  )
+    return null;
 
   return {
     name,
@@ -57,7 +42,7 @@ function validProduct(body) {
     price,
     stock,
     category_id: categoryId,
-    image_url: imageUrl
+    image_url: imageUrl,
   };
 }
 
@@ -70,7 +55,7 @@ function validId(value) {
 router.get("/", async (req, res) => {
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select("*, category:categories(id, name)")
     .order("id");
 
   if (error) {
@@ -80,8 +65,8 @@ router.get("/", async (req, res) => {
       success: false,
       error: {
         code: "PRODUCT_FETCH_FAILED",
-        message: "Unable to load products."
-      }
+        message: "Unable to load products.",
+      },
     });
   }
 
@@ -97,8 +82,8 @@ router.post("/", async (req, res) => {
       success: false,
       error: {
         code: "INVALID_PRODUCT",
-        message: "Check product name, price, stock, category and image URL."
-      }
+        message: "Check product name, price, stock, category and image URL.",
+      },
     });
   }
 
@@ -106,7 +91,7 @@ router.post("/", async (req, res) => {
     .from("products")
     .insert({
       ...product,
-      is_active: true
+      is_active: true,
     })
     .select()
     .single();
@@ -118,8 +103,8 @@ router.post("/", async (req, res) => {
       success: false,
       error: {
         code: "PRODUCT_CREATE_FAILED",
-        message: "Unable to add product."
-      }
+        message: "Unable to add product.",
+      },
     });
   }
 
@@ -136,8 +121,8 @@ router.put("/:id", async (req, res) => {
       success: false,
       error: {
         code: "INVALID_INPUT",
-        message: "Invalid product ID or product details."
-      }
+        message: "Invalid product ID or product details.",
+      },
     });
   }
 
@@ -155,8 +140,8 @@ router.put("/:id", async (req, res) => {
       success: false,
       error: {
         code: "PRODUCT_UPDATE_FAILED",
-        message: "Unable to update product."
-      }
+        message: "Unable to update product.",
+      },
     });
   }
 
@@ -165,8 +150,8 @@ router.put("/:id", async (req, res) => {
       success: false,
       error: {
         code: "PRODUCT_NOT_FOUND",
-        message: "Product not found."
-      }
+        message: "Product not found.",
+      },
     });
   }
 
@@ -182,8 +167,8 @@ router.delete("/:id", async (req, res) => {
       success: false,
       error: {
         code: "INVALID_PRODUCT_ID",
-        message: "Invalid product ID."
-      }
+        message: "Invalid product ID.",
+      },
     });
   }
 
@@ -201,8 +186,8 @@ router.delete("/:id", async (req, res) => {
       success: false,
       error: {
         code: "PRODUCT_ARCHIVE_FAILED",
-        message: "Unable to archive product."
-      }
+        message: "Unable to archive product.",
+      },
     });
   }
 
@@ -211,14 +196,14 @@ router.delete("/:id", async (req, res) => {
       success: false,
       error: {
         code: "PRODUCT_NOT_FOUND",
-        message: "Product not found."
-      }
+        message: "Product not found.",
+      },
     });
   }
 
   res.json({
     success: true,
-    message: "Product archived successfully."
+    message: "Product archived successfully.",
   });
 });
 
